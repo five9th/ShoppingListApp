@@ -8,6 +8,12 @@ object ShopListRepositoryImpl : ShopListRepository {
 
     private var lastId = 0
 
+    init {
+        addShopItem(ShopListItem("one", 1, true))
+        addShopItem(ShopListItem("two", 2, true))
+        addShopItem(ShopListItem("three", 3, true))
+    }
+
     override fun addShopItem(item: ShopListItem) {
         if (item.id == ShopListItem.UNREGISTERED_ID) {
             item.id = ++lastId
