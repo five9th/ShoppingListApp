@@ -25,9 +25,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
-        mainViewModel.shopList.observe(this, ::shopListObserver)
-
-        mainViewModel.updateShopList()
+        mainViewModel.getShopListLD().observe(this, ::shopListObserver)
     }
 
     private fun shopListObserver(shopList: List<ShopListItem>) {

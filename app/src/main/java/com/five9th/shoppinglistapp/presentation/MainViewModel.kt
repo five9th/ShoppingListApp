@@ -1,7 +1,6 @@
 package com.five9th.shoppinglistapp.presentation
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 import com.five9th.shoppinglistapp.data.ShopListRepositoryImpl
@@ -19,28 +18,20 @@ class MainViewModel : ViewModel() {
     private val addShopItemUsecase = AddShopItemUsecase(repository)
     private val editShopItemUsecase = EditShopItemUsecase(repository)
 
-    private val _shopList = MutableLiveData<List<ShopListItem>>()
-    val shopList: LiveData<List<ShopListItem>>
-        get() = _shopList
-
-    fun updateShopList() {
-        val list = getShopListUsecase.getShopList()
-        _shopList.value = list
+    fun getShopListLD(): LiveData<List<ShopListItem>> {
+        return getShopListUsecase.getShopListLD()
     }
 
     fun removeShopItem(item: ShopListItem) {
         removeShopItemUsecase.removeShopItem(item.id)
-        updateShopList()
     }
 
     fun addShopItem(item: ShopListItem) {
         addShopItemUsecase.addShopItem(item)
-        updateShopList()
     }
 
-    fun changeShopItemEnablence(item: ShopListItem) {
+    fun changeEnableState(item: ShopListItem) {
         val newItem = item.copy(isEnabled = !item.isEnabled)
         editShopItemUsecase.editShopItem(newItem)
-        updateShopList()
     }
 }

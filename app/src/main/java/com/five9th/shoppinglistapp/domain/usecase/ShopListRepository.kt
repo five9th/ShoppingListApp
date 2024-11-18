@@ -1,5 +1,6 @@
 package com.five9th.shoppinglistapp.domain.usecase
 
+import androidx.lifecycle.LiveData
 import com.five9th.shoppinglistapp.domain.entity.ShopListItem
 
 interface ShopListRepository {
@@ -13,5 +14,5 @@ interface ShopListRepository {
 
     fun removeShopItem(item: ShopListItem)
 
-    fun getShopList(): List<ShopListItem>
+    fun getShopListLD(): LiveData<List<ShopListItem>>
 }

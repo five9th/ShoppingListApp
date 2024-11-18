@@ -1,12 +1,17 @@
 package com.five9th.shoppinglistapp.data
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.five9th.shoppinglistapp.domain.entity.ShopListItem
 import com.five9th.shoppinglistapp.domain.usecase.ShopListRepository
 
+
+/** Simple repository implementation. Stores data in local variable.
+ * Also stores and manages LiveData. */
 object ShopListRepositoryImpl : ShopListRepository {
     private val shopList = mutableListOf<ShopListItem>()
 
-    private var lastId = 0
+    private val _shopListLiveData = MutableLiveData<List<ShopListItem>>()
 
     init {
         addShopItem(ShopListItem("one", 1, true))
@@ -14,12 +19,15 @@ object ShopListRepositoryImpl : ShopListRepository {
         addShopItem(ShopListItem("three", 3, true))
     }
 
+    private var lastId = 0
+
     override fun addShopItem(item: ShopListItem) {
         if (item.id == ShopListItem.UNREGISTERED_ID) {
             item.id = ++lastId
         }
 
         shopList.add(item)
+        updateShopList() // notify observers via LiveData
     }
 
     override fun getShopItem(id: Int): ShopListItem? {
@@ -45,6 +53,8 @@ object ShopListRepositoryImpl : ShopListRepository {
 
         if (index in shopList.indices) {
             shopList.removeAt(index)
+
+            updateShopList() // notify observers via LiveData
         }
     }
 
@@ -52,7 +62,11 @@ object ShopListRepositoryImpl : ShopListRepository {
         removeShopItem(item.id)
     }
 
-    override fun getShopList(): List<ShopListItem> {
-        return shopList
+    override fun getShopListLD(): LiveData<List<ShopListItem>> {
+        return _shopListLiveData
+    }
+
+    private fun updateShopList() {
+        _shopListLiveData.value = shopList
     }
 }
