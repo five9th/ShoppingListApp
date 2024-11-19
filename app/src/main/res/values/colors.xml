@@ -2,4 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="shop_item_bg">#8BC34A</color>
+    <color name="shop_item_bg_transp">#998BC34A</color>
+    <color name="add_fab_bg">#D1FFBF</color>
+    <color name="main_bg">#FAFDDB</color>
 </resources>
