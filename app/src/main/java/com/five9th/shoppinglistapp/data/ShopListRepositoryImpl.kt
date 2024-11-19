@@ -9,7 +9,10 @@ import com.five9th.shoppinglistapp.domain.usecase.ShopListRepository
 /** Simple repository implementation. Stores data in local variable.
  * Also stores and manages LiveData. */
 object ShopListRepositoryImpl : ShopListRepository {
-    private val shopList = mutableListOf<ShopListItem>()
+    private val shopList =
+        sortedSetOf<ShopListItem>(
+            { i1, i2 -> i1.id.compareTo(i2.id)
+    })
 
     private val _shopListLiveData = MutableLiveData<List<ShopListItem>>()
 
@@ -40,26 +43,15 @@ object ShopListRepositoryImpl : ShopListRepository {
     }
 
     override fun removeShopItem(itemId: Int) {
-        var index = -1
+        shopList.removeIf { it.id == itemId }
 
-        for (i in shopList.indices) {
-            val item = shopList[i]
-
-            if (item.id == itemId) {
-                index = i
-                break
-            }
-        }
-
-        if (index in shopList.indices) {
-            shopList.removeAt(index)
-
-            updateShopList() // notify observers via LiveData
-        }
+        updateShopList() // notify observers via LiveData
     }
 
     override fun removeShopItem(item: ShopListItem) {
-        removeShopItem(item.id)
+        shopList.remove(item)
+
+        updateShopList() // notify observers via LiveData
     }
 
     override fun getShopListLD(): LiveData<List<ShopListItem>> {
@@ -67,6 +59,6 @@ object ShopListRepositoryImpl : ShopListRepository {
     }
 
     private fun updateShopList() {
-        _shopListLiveData.value = shopList
+        _shopListLiveData.value = shopList.toList()
     }
 }
