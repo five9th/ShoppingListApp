@@ -16,10 +16,10 @@ object ShopListRepositoryImpl : ShopListRepository {
 
     private val _shopListLiveData = MutableLiveData<List<ShopListItem>>()
 
-    init {
-        addShopItem(ShopListItem("one", 1, true))
-        addShopItem(ShopListItem("two", 2, true))
-        addShopItem(ShopListItem("three", 3, true))
+    init { // generating some test data
+        for (i in 1..100) {
+            addShopItem(ShopListItem("Item $i", i, i % 50 > 25))
+        }
     }
 
     private var lastId = 0

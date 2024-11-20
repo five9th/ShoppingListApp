@@ -7,12 +7,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
 import com.five9th.shoppinglistapp.R
 import com.five9th.shoppinglistapp.domain.entity.ShopListItem
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var mainViewModel: MainViewModel
+
+    private lateinit var shopListRv: RecyclerView
+    private lateinit var shopListAdapter: ShopListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,11 +28,35 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
-        mainViewModel.getShopListLD().observe(this, ::shopListObserver)
+        findViews()
+        initViewModel()
+        setupShopListRv()
     }
 
-    private fun shopListObserver(shopList: List<ShopListItem>) {
-        Log.d("tag", shopList.toString())
+    private fun findViews() {
+        shopListRv = findViewById(R.id.main_rv)
+    }
+
+    private fun initViewModel() {
+        mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        mainViewModel.getShopListLD().observe(this, ::onShopListChanged)
+    }
+
+    private fun setupShopListRv() {
+        shopListAdapter = ShopListAdapter()
+        shopListRv.adapter = shopListAdapter
+
+        shopListRv.recycledViewPool.also {
+            it.setMaxRecycledViews(
+                ShopListAdapter.ITEM_VIEW_TYPE_ENABLED, ShopListAdapter.MAX_POOL_SIZE)
+            it.setMaxRecycledViews(
+                ShopListAdapter.ITEM_VIEW_TYPE_DISABLED, ShopListAdapter.MAX_POOL_SIZE)
+        }
+    }
+
+
+    private fun onShopListChanged(shopList: List<ShopListItem>) {
+        Log.d("MainActivity", "onShopListChanged: $shopList")
+        shopListAdapter.shopList = shopList
     }
 }
