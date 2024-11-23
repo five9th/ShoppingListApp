@@ -1,5 +1,6 @@
 package com.five9th.shoppinglistapp.presentation
 
+import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
@@ -7,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.five9th.shoppinglistapp.R
 import com.five9th.shoppinglistapp.domain.entity.ShopListItem
@@ -61,6 +63,37 @@ class MainActivity : AppCompatActivity() {
         // set listeners
         shopListAdapter.onClickListener = ::onItemClick
         shopListAdapter.onLongClickListener = ::onLongItemClick
+
+        // set swipe to delete
+        setSwipeToDelete()
+    }
+
+    private fun setSwipeToDelete() {
+        val swipeCallback = object :
+            ItemTouchHelper.SimpleCallback(
+                0,
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+            ) {
+
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                // Drag-and-drop is disabled; return false
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val itemToRemove = shopListAdapter.shopList[position]
+                mainViewModel.removeShopItem(itemToRemove)
+            }
+        }
+
+        // Attach ItemTouchHelper to RecyclerView
+        val itemTouchHelper = ItemTouchHelper(swipeCallback)
+        itemTouchHelper.attachToRecyclerView(shopListRv)
     }
 
 
