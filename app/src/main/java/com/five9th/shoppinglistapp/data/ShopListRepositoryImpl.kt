@@ -38,8 +38,9 @@ object ShopListRepositoryImpl : ShopListRepository {
     }
 
     override fun editShopItem(item: ShopListItem) {
-        removeShopItem(item.id)
-        addShopItem(item)
+//        removeShopItem(item.id)
+        shopList.remove(item) // just removing the item
+        addShopItem(item) // adding item and notifying observers
     }
 
     override fun removeShopItem(itemId: Int) {
