@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.five9th.shoppinglistapp.R
 import com.five9th.shoppinglistapp.domain.entity.ShopListItem
@@ -20,8 +21,14 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
 
     var shopList: List<ShopListItem> = listOf()
         set(value) {
+            // Creating a callback instance with old and new lists
+            val callback = ShopListDiffCallback(field, value)
+
+            // Calculating DiffResult and updating RecyclerView
+            DiffUtil.calculateDiff(callback).dispatchUpdatesTo(this)
+
+            // Setting value
             field = value
-            notifyDataSetChanged()
         }
 
     var onLongClickListener: ((ShopListItem) -> Unit)? = null
