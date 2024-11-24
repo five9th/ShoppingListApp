@@ -1,6 +1,5 @@
 package com.five9th.shoppinglistapp.presentation
 
-import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
@@ -86,7 +85,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
-                val itemToRemove = shopListAdapter.shopList[position]
+                val itemToRemove = shopListAdapter.currentList[position]
                 mainViewModel.removeShopItem(itemToRemove)
             }
         }
@@ -99,7 +98,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun onShopListChanged(shopList: List<ShopListItem>) {
         Log.d(tag, "onShopListChanged: $shopList")
-        shopListAdapter.shopList = shopList
+        shopListAdapter.submitList(shopList)
     }
 
     /** Changing enable state */
