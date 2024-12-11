@@ -2,6 +2,7 @@ package com.five9th.shoppinglistapp.presentation
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.five9th.shoppinglistapp.R
 import com.five9th.shoppinglistapp.domain.entity.ShopListItem
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
 class MainActivity : AppCompatActivity() {
@@ -21,6 +23,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var shopListRv: RecyclerView
     private lateinit var shopListAdapter: ShopListAdapter
+
+    private lateinit var addFab: FloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,10 +39,12 @@ class MainActivity : AppCompatActivity() {
         findViews()
         initViewModel()
         setupShopListRv()
+        setListeners()
     }
 
     private fun findViews() {
         shopListRv = findViewById(R.id.main_rv)
+        addFab = findViewById(R.id.add_fab)
     }
 
     private fun initViewModel() {
@@ -95,6 +101,10 @@ class MainActivity : AppCompatActivity() {
         itemTouchHelper.attachToRecyclerView(shopListRv)
     }
 
+    private fun setListeners() {
+        addFab.setOnClickListener(::onAddBtnClick)
+    }
+
 
     private fun onShopListChanged(shopList: List<ShopListItem>) {
         Log.d(tag, "onShopListChanged: $shopList")
@@ -109,7 +119,14 @@ class MainActivity : AppCompatActivity() {
     /** Open edit item activity */
     private fun onItemClick(item: ShopListItem) {
         Log.d(tag, "onItemClick: $item")
-        // TODO: Open edit item activity
+
+        val intent = ShopItemActivity.newIntentEditItem(this, item.id)
+        startActivity(intent)
+    }
+
+    private fun onAddBtnClick(view: View) {
+        val intent = ShopItemActivity.newIntentAddItem(this)
+        startActivity(intent)
     }
 
 }
