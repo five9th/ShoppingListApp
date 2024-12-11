@@ -1,5 +1,7 @@
 package com.five9th.shoppinglistapp.presentation
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.five9th.shoppinglistapp.data.ShopListRepositoryImpl
 import com.five9th.shoppinglistapp.domain.entity.ShopListItem
@@ -14,8 +16,28 @@ class ShopItemViewModel : ViewModel() {
     private val addShopItemUsecase = AddShopItemUsecase(repository)
     private val editShopItemUsecase = EditShopItemUsecase(repository)
 
-    fun getShopItem(itemId: Int): ShopListItem? {
-        return getShopItemUsecase.getShopItem(itemId)
+    private val _shopItemLD = MutableLiveData<ShopListItem>()
+    val shopItemLD: LiveData<ShopListItem>
+        get() = _shopItemLD
+
+    private val _nameHasError = MutableLiveData<Boolean>()
+    val nameHasError: LiveData<Boolean>
+        get() = _nameHasError
+
+    private val _countHasError = MutableLiveData<Boolean>()
+    val countHasError: LiveData<Boolean>
+        get() = _countHasError
+
+    private val _closeActivity = MutableLiveData<Unit>()
+    val closeActivity: LiveData<Unit>
+        get() = _closeActivity
+
+
+    fun getShopItem(itemId: Int) {
+        val item = getShopItemUsecase.getShopItem(itemId)
+        item?.also {
+            _shopItemLD.postValue(item)
+        }
     }
 
     fun addShopItem(inputName: String?, inputCount: String?) {
@@ -27,6 +49,9 @@ class ShopItemViewModel : ViewModel() {
         if (isValid) {
             val shopItem = ShopListItem(name, count, true)
             addShopItemUsecase.addShopItem(shopItem)
+
+            // Notify that ShopItemActivity may me closed
+            _closeActivity.value = Unit
         }
     }
 
@@ -37,9 +62,16 @@ class ShopItemViewModel : ViewModel() {
         val isValid = validateInput(name, count)
 
         if (isValid) {
-            // TODO: get shopItem by id from repository, not create new one
-            val shopItem = ShopListItem(name, count, true)
-            editShopItemUsecase.editShopItem(shopItem)
+            val shopItem = shopItemLD.value
+
+            shopItem?.let {
+                val editedItem = it.copy(name = name, count = count)
+
+                editShopItemUsecase.editShopItem(editedItem)
+
+                // Notify that ShopItemActivity may me closed
+                _closeActivity.value = Unit
+            }
         }
     }
 
@@ -56,14 +88,24 @@ class ShopItemViewModel : ViewModel() {
 
         if (name.isBlank()) {
             isValid = false
-            // TODO: show name error
+            // show name error
+            _nameHasError.value = true
         }
 
         if (count <= 0) {
             isValid = false
-            // TODO: show count error
+            // show count error
+            _countHasError.value = true
         }
 
         return isValid
+    }
+
+    fun resetNameError() {
+        _nameHasError.postValue(false)
+    }
+
+    fun resetCountError() {
+        _countHasError.postValue(false)
     }
 }
