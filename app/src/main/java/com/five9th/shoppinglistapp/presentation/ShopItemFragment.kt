@@ -34,11 +34,13 @@ class ShopItemFragment(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d(tag, "onCreateView") ////
         return inflater.inflate(R.layout.fragment_shop_item, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d(tag, "onViewCreated, mode: $mode, id: $itemId") ////
 
         findViews(view)
         setListeners()
@@ -91,11 +93,13 @@ class ShopItemFragment(
         }
 
         viewModel.closeActivity.observe(viewLifecycleOwner) {
-            //TODO
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
     }
 
     private fun parseParams() {
+        Log.d(tag, "parseParams, mode: $mode, id: $itemId") ////
+
         when (mode) {
             MODE_ADD -> initForAdd()
             MODE_EDIT -> initForEdit()
@@ -131,5 +135,15 @@ class ShopItemFragment(
         private const val MODE_UNDEFINED = -1
 
         private const val ID_UNDEFINED = ShopListItem.UNREGISTERED_ID
+
+        fun newInstanceAdd(): ShopItemFragment {
+            Log.d("ShopItemFragment", "newInstanceAdd") ////
+            return ShopItemFragment(MODE_ADD)
+        }
+
+        fun newInstanceEdit(itemId: Int): ShopItemFragment {
+            Log.d("ShopItemFragment", "newInstanceEdit") ////
+            return ShopItemFragment(MODE_EDIT, itemId)
+        }
     }
 }
