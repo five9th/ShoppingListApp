@@ -31,7 +31,6 @@ class ShopItemFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(tag, "onCreate") ////
 
         parseArgs()
     }
@@ -99,7 +98,6 @@ class ShopItemFragment : Fragment() {
     /** Sets [fragmentMode] and [itemId] fields */
     private fun parseArgs() {
         val mode = requireArguments().getInt(MODE_KEY, MODE_UNDEFINED)
-        Log.d(tag, "parseArgs, mode: $mode") ////
 
         when (mode) {
             MODE_ADD -> initForAdd()
@@ -121,8 +119,6 @@ class ShopItemFragment : Fragment() {
     }
 
     private fun launchRightMode() {
-        Log.d(tag, "launchRightMode, mode: $fragmentMode") ////
-
         when (fragmentMode) {
             MODE_ADD -> launchAddMode()
             MODE_EDIT -> launchEditMode()

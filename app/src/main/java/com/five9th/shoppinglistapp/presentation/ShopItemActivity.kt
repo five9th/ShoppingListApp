@@ -63,11 +63,14 @@ class ShopItemActivity : AppCompatActivity() {
             else -> throw RuntimeException("Unknown mode: $screenMode")
         }
 
-        Log.d(tag, "fragments: ${supportFragmentManager.fragments.size}")
-
-        supportFragmentManager.beginTransaction()
-            .add(R.id.shop_item_container, fragment)
-            .commit()
+        supportFragmentManager.let {
+            // check if fragment already added
+            if (it.findFragmentById(R.id.shop_item_container) == null) {
+                supportFragmentManager.beginTransaction()
+                    .add(R.id.shop_item_container, fragment)
+                    .commit()
+            }
+        }
     }
 
 
@@ -81,7 +84,6 @@ class ShopItemActivity : AppCompatActivity() {
         private const val ID_UNDEFINED = ShopListItem.UNREGISTERED_ID
 
         fun newIntentAddItem(context: Context): Intent {
-            Log.d("ShopItemActivity", "newIntentAddItem") ////
             val newIntent = Intent(context, ShopItemActivity::class.java)
             newIntent.putExtra(EXTRA_MODE, MODE_ADD)
 
@@ -89,7 +91,6 @@ class ShopItemActivity : AppCompatActivity() {
         }
 
         fun newIntentEditItem(context: Context, itemId: Int): Intent {
-            Log.d("ShopItemActivity", "newIntentEditItem") ////
             val newIntent = Intent(context, ShopItemActivity::class.java)
             newIntent.putExtra(EXTRA_MODE, MODE_EDIT)
             newIntent.putExtra(EXTRA_ITEM_ID, itemId)
