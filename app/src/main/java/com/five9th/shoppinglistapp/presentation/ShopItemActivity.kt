@@ -26,7 +26,6 @@ class ShopItemActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        Log.d(tag, "onCreate") ////
 
         parseIntent()
         setUpFragment()
@@ -35,7 +34,6 @@ class ShopItemActivity : AppCompatActivity() {
     /** Sets the [screenMode] and [itemId] fields */
     private fun parseIntent() {
         val mode = intent.getIntExtra(EXTRA_MODE, MODE_UNDEFINED)
-        Log.d(tag, "parseIntent, mode: $mode") ////
 
         when (mode) {
             MODE_ADD -> initForAdd()
@@ -59,13 +57,13 @@ class ShopItemActivity : AppCompatActivity() {
 
     /** Sets fragment to the container */
     private fun setUpFragment() {
-        Log.d(tag, "setUpFragment, mode: $screenMode") ////
-
         val fragment = when(screenMode) {
             MODE_ADD -> ShopItemFragment.newInstanceAdd()
             MODE_EDIT -> ShopItemFragment.newInstanceEdit(itemId)
             else -> throw RuntimeException("Unknown mode: $screenMode")
         }
+
+        Log.d(tag, "fragments: ${supportFragmentManager.fragments.size}")
 
         supportFragmentManager.beginTransaction()
             .add(R.id.shop_item_container, fragment)

@@ -14,12 +14,12 @@ import com.five9th.shoppinglistapp.R
 import com.five9th.shoppinglistapp.domain.entity.ShopListItem
 import com.google.android.material.textfield.TextInputLayout
 
-class ShopItemFragment(
-    private val mode: Int = MODE_UNDEFINED,
-    private val itemId: Int = ID_UNDEFINED
-) : Fragment() {
+class ShopItemFragment : Fragment() {
 
     private val tag = "ShopItemFragment"
+
+    private var fragmentMode: Int = MODE_UNDEFINED
+    private var itemId: Int = ID_UNDEFINED
 
     private lateinit var itemNameTil: TextInputLayout
     private lateinit var itemCountTil: TextInputLayout
@@ -29,18 +29,23 @@ class ShopItemFragment(
 
     private lateinit var viewModel: ShopItemViewModel
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d(tag, "onCreate") ////
+
+        parseArgs()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d(tag, "onCreateView") ////
         return inflater.inflate(R.layout.fragment_shop_item, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(tag, "onViewCreated, mode: $mode, id: $itemId") ////
 
         findViews(view)
         setListeners()
@@ -48,7 +53,7 @@ class ShopItemFragment(
         initViewModel()
         subscribeForLD()
 
-        parseParams()
+        launchRightMode()
     }
 
     private fun findViews(view: View) {
@@ -76,12 +81,6 @@ class ShopItemFragment(
     }
 
     private fun subscribeForLD() {
-        viewModel.shopItemLD.observe(viewLifecycleOwner) {
-            Log.d(tag, "shopItemLD update: $it") ////
-            itemNameEt.setText(it.name)
-            itemCountEt.setText(it.count.toString())
-        }
-
         viewModel.nameHasError.observe(viewLifecycleOwner) {
             if (it) itemNameTil.setError(getString(R.string.wrong_name))
             else itemNameTil.error = null
@@ -97,8 +96,10 @@ class ShopItemFragment(
         }
     }
 
-    private fun parseParams() {
-        Log.d(tag, "parseParams, mode: $mode, id: $itemId") ////
+    /** Sets [fragmentMode] and [itemId] fields */
+    private fun parseArgs() {
+        val mode = requireArguments().getInt(MODE_KEY, MODE_UNDEFINED)
+        Log.d(tag, "parseArgs, mode: $mode") ////
 
         when (mode) {
             MODE_ADD -> initForAdd()
@@ -108,21 +109,47 @@ class ShopItemFragment(
     }
 
     private fun initForAdd() {
-        // do nothing ...
+        fragmentMode = MODE_ADD
     }
 
     private fun initForEdit() {
-        if (itemId == ID_UNDEFINED) throw RuntimeException("Undefined item id")
+        val id = requireArguments().getInt(ITEM_ID_KEY, ID_UNDEFINED)
+        if (id == ID_UNDEFINED) throw RuntimeException("Undefined item id")
 
-        viewModel.getShopItem(itemId)
+        itemId = id
+        fragmentMode = MODE_EDIT
     }
 
+    private fun launchRightMode() {
+        Log.d(tag, "launchRightMode, mode: $fragmentMode") ////
+
+        when (fragmentMode) {
+            MODE_ADD -> launchAddMode()
+            MODE_EDIT -> launchEditMode()
+        }
+    }
+
+    private fun launchAddMode() {
+        // nothing needs to be done
+    }
+
+    private fun launchEditMode() {
+        // request item from viewmodel
+        viewModel.getShopItem(itemId)
+
+        // listening LiveData for Item
+        viewModel.shopItemLD.observe(viewLifecycleOwner) {
+            Log.d(tag, "shopItemLD: $it") ////
+            itemNameEt.setText(it.name)
+            itemCountEt.setText(it.count.toString())
+        }
+    }
 
     private fun onSaveBtnClick(view: View) {
         val name = itemNameEt.text?.toString()
         val count = itemCountEt.text?.toString()
 
-        when (mode) {
+        when (fragmentMode) {
             MODE_ADD -> viewModel.tryAddShopItem(name, count)
             MODE_EDIT -> viewModel.tryEditShopItem(name, count)
         }
@@ -130,20 +157,29 @@ class ShopItemFragment(
 
 
     companion object {
+        private const val MODE_KEY = "mode"
         private const val MODE_ADD = 1
         private const val MODE_EDIT = 2
         private const val MODE_UNDEFINED = -1
 
+        private const val ITEM_ID_KEY = "item_id"
         private const val ID_UNDEFINED = ShopListItem.UNREGISTERED_ID
 
         fun newInstanceAdd(): ShopItemFragment {
-            Log.d("ShopItemFragment", "newInstanceAdd") ////
-            return ShopItemFragment(MODE_ADD)
+            return ShopItemFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(MODE_KEY, MODE_ADD)
+                }
+            }
         }
 
         fun newInstanceEdit(itemId: Int): ShopItemFragment {
-            Log.d("ShopItemFragment", "newInstanceEdit") ////
-            return ShopItemFragment(MODE_EDIT, itemId)
+            return ShopItemFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(MODE_KEY, MODE_EDIT)
+                    putInt(ITEM_ID_KEY, itemId)
+                }
+            }
         }
     }
 }
