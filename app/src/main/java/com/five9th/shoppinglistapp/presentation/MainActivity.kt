@@ -1,5 +1,6 @@
 package com.five9th.shoppinglistapp.presentation
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -7,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -107,7 +109,6 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun onShopListChanged(shopList: List<ShopListItem>) {
-        Log.d(tag, "onShopListChanged: $shopList")
         shopListAdapter.submitList(shopList)
     }
 
@@ -116,17 +117,44 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.changeEnableState(item)
     }
 
-    /** Open edit item activity */
+    /** Open edit item activity or display a fragment depending on the device's orientation */
     private fun onItemClick(item: ShopListItem) {
-        Log.d(tag, "onItemClick: $item")
-
-        val intent = ShopItemActivity.newIntentEditItem(this, item.id)
-        startActivity(intent)
+        if (isInLandscapeMode()) displayEditFragment(item)
+        else launchEditActivity(item)
     }
 
     private fun onAddBtnClick(view: View) {
+        if (isInLandscapeMode()) displayAddFragment()
+        else launchAddActivity()
+    }
+
+
+    private fun isInLandscapeMode(): Boolean
+    = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    private fun launchAddActivity() {
         val intent = ShopItemActivity.newIntentAddItem(this)
         startActivity(intent)
     }
 
+    private fun launchEditActivity(item: ShopListItem) {
+        val intent = ShopItemActivity.newIntentEditItem(this, item.id)
+        startActivity(intent)
+    }
+
+    private fun displayAddFragment() {
+        val fragment = ShopItemFragment.newInstanceAdd()
+        displayFragment(fragment)
+    }
+
+    private fun displayEditFragment(item: ShopListItem) {
+        val fragment = ShopItemFragment.newInstanceEdit(item.id)
+        displayFragment(fragment)
+    }
+
+    private fun displayFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container_land, fragment)
+            .commit()
+    }
 }

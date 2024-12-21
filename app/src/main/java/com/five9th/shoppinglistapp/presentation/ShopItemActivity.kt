@@ -66,7 +66,7 @@ class ShopItemActivity : AppCompatActivity() {
         supportFragmentManager.let {
             // check if fragment already added
             if (it.findFragmentById(R.id.shop_item_container) == null) {
-                supportFragmentManager.beginTransaction()
+                it.beginTransaction()
                     .add(R.id.shop_item_container, fragment)
                     .commit()
             }
