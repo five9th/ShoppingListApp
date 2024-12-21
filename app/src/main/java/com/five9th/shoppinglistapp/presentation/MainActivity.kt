@@ -153,8 +153,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun displayFragment(fragment: Fragment) {
+        supportFragmentManager.popBackStack() // remove previous fragment from backstack
+
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container_land, fragment)
+            .addToBackStack(null)
             .commit()
     }
 }
