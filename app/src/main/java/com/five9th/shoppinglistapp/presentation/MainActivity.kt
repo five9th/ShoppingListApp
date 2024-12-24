@@ -17,7 +17,7 @@ import com.five9th.shoppinglistapp.domain.entity.ShopListItem
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ShopItemFragment.EditingFinishedListener {
 
     private val tag = "MainActivity"
 
@@ -159,5 +159,9 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.fragment_container_land, fragment)
             .addToBackStack(null)
             .commit()
+    }
+
+    override fun onEditingFinished() {
+        supportFragmentManager.popBackStack()
     }
 }

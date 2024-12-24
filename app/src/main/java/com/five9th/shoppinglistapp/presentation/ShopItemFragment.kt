@@ -1,5 +1,6 @@
 package com.five9th.shoppinglistapp.presentation
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,6 +19,8 @@ class ShopItemFragment : Fragment() {
 
     private val tag = "ShopItemFragment"
 
+    private lateinit var editingFinishedListener: EditingFinishedListener
+
     private var fragmentMode: Int = MODE_UNDEFINED
     private var itemId: Int = ID_UNDEFINED
 
@@ -28,6 +31,17 @@ class ShopItemFragment : Fragment() {
     private lateinit var saveBtn: Button
 
     private lateinit var viewModel: ShopItemViewModel
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        if (context is EditingFinishedListener) {
+            editingFinishedListener = context
+        }
+        else {
+            throw Exception("$context must implement an EditingFinishedListener interface")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,7 +105,7 @@ class ShopItemFragment : Fragment() {
         }
 
         viewModel.closeActivity.observe(viewLifecycleOwner) {
-            activity?.onBackPressedDispatcher?.onBackPressed()
+            editingFinishedListener.onEditingFinished()
         }
     }
 
@@ -149,6 +163,11 @@ class ShopItemFragment : Fragment() {
             MODE_ADD -> viewModel.tryAddShopItem(name, count)
             MODE_EDIT -> viewModel.tryEditShopItem(name, count)
         }
+    }
+
+
+    interface EditingFinishedListener {
+        fun onEditingFinished()
     }
 
 

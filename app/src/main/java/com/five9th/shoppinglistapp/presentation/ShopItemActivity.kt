@@ -10,7 +10,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.five9th.shoppinglistapp.R
 import com.five9th.shoppinglistapp.domain.entity.ShopListItem
 
-class ShopItemActivity : AppCompatActivity() {
+class ShopItemActivity : AppCompatActivity(), ShopItemFragment.EditingFinishedListener {
 
     private val tag = "ShopItemActivity"
 
@@ -97,5 +97,9 @@ class ShopItemActivity : AppCompatActivity() {
 
             return newIntent
         }
+    }
+
+    override fun onEditingFinished() {
+        finish()
     }
 }
