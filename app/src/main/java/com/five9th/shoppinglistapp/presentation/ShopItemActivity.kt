@@ -19,6 +19,8 @@ class ShopItemActivity : AppCompatActivity(), ShopItemFragment.EditingFinishedLi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(tag, "onCreate")
+
 //        enableEdgeToEdge() // Doesn't work with windowSoftInputMode="adjustResize"
         setContentView(R.layout.activity_shop_item)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.shop_item_container)) { v, insets ->
@@ -71,6 +73,36 @@ class ShopItemActivity : AppCompatActivity(), ShopItemFragment.EditingFinishedLi
                     .commit()
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(tag, "onDestroy")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(tag, "onStop")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d(tag, "onStart")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(tag, "onPause")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(tag, "onResume")
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        Log.d(tag, "onRestart")
     }
 
 

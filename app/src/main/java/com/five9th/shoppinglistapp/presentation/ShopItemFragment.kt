@@ -32,8 +32,13 @@ class ShopItemFragment : Fragment() {
 
     private lateinit var viewModel: ShopItemViewModel
 
+    init {
+        Log.d(tag, "Constructor")
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        Log.d(tag, "onAttach")
 
         if (context is EditingFinishedListener) {
             editingFinishedListener = context
@@ -45,6 +50,7 @@ class ShopItemFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(tag, "onCreate")
 
         parseArgs()
     }
@@ -54,11 +60,14 @@ class ShopItemFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d(tag, "onCreateView")
+
         return inflater.inflate(R.layout.fragment_shop_item, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d(tag, "onViewCreated")
 
         findViews(view)
         setListeners()
@@ -149,7 +158,6 @@ class ShopItemFragment : Fragment() {
 
         // listening LiveData for Item
         viewModel.shopItemLD.observe(viewLifecycleOwner) {
-            Log.d(tag, "shopItemLD: $it") ////
             itemNameEt.setText(it.name)
             itemCountEt.setText(it.count.toString())
         }
@@ -163,6 +171,47 @@ class ShopItemFragment : Fragment() {
             MODE_ADD -> viewModel.tryAddShopItem(name, count)
             MODE_EDIT -> viewModel.tryEditShopItem(name, count)
         }
+    }
+
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        Log.d(tag, "onViewStateRestored")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d(tag, "onStart")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(tag, "onResume")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(tag, "onPause")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(tag, "onStop")
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.d(tag, "onDestroyView")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(tag, "onDestroy")
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        Log.d(tag, "onDetach")
     }
 
 
