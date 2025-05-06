@@ -1,21 +1,21 @@
 package com.five9th.shoppinglistapp.presentation
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.five9th.shoppinglistapp.R
+import com.five9th.shoppinglistapp.databinding.ShopItemDisabledBinding
+import com.five9th.shoppinglistapp.databinding.ShopItemEnabledBinding
 import com.five9th.shoppinglistapp.domain.entity.ShopListItem
+import java.util.Locale
 
 class ShopListAdapter :
     ListAdapter<ShopListItem, ShopListAdapter.ShopItemViewHolder>(ShopItemDiffCallback()) {
 
-    class ShopItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        var nameTv: TextView = view.findViewById(R.id.item_name_tv)
-        var countTv: TextView = view.findViewById(R.id.item_count_tv)
-    }
+    class ShopItemViewHolder(val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root)
 
 
     var onLongClickListener: ((ShopListItem) -> Unit)? = null
@@ -28,18 +28,18 @@ class ShopListAdapter :
             else -> throw Exception("Unknown view type: $viewType")
         }
 
-        val view = LayoutInflater.from(parent.context).inflate(
-            layoutId, parent, false
+        val binding = DataBindingUtil.inflate<ViewDataBinding>(
+            LayoutInflater.from(parent.context),
+            layoutId,
+            parent,
+            false
         )
 
-        return ShopItemViewHolder(view)
+        return ShopItemViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ShopItemViewHolder, position: Int) {
         val item = getItem(position)
-
-        holder.nameTv.text = item.name
-        holder.countTv.text = item.count.toString()
 
         holder.itemView.setOnLongClickListener {
             onLongClickListener?.invoke(item)
@@ -48,6 +48,17 @@ class ShopListAdapter :
 
         holder.itemView.setOnClickListener {
             onClickListener?.invoke(item)
+        }
+
+        when (val binding = holder.binding) {
+            is ShopItemEnabledBinding -> {
+                binding.itemNameTv.text = item.name
+                binding.itemCountTv.text = intToText(item.count)
+            }
+            is ShopItemDisabledBinding -> {
+                binding.itemNameTv.text = item.name
+                binding.itemCountTv.text = intToText(item.count)
+            }
         }
     }
 
@@ -61,5 +72,9 @@ class ShopListAdapter :
         const val ITEM_VIEW_TYPE_DISABLED = 2
 
         const val MAX_POOL_SIZE = 16
+
+        private fun intToText(number: Int): String {
+            return String.format(Locale.getDefault(), "%d", number)
+        }
     }
 }
