@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.five9th.shoppinglistapp.R
+import com.five9th.shoppinglistapp.databinding.ActivityMainBinding
 import com.five9th.shoppinglistapp.domain.entity.ShopListItem
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
@@ -23,30 +24,26 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.EditingFinishedListen
 
     private lateinit var mainViewModel: MainViewModel
 
-    private lateinit var shopListRv: RecyclerView
-    private lateinit var shopListAdapter: ShopListAdapter
+    private lateinit var binding: ActivityMainBinding
 
-    private lateinit var addFab: FloatingActionButton
+    private lateinit var shopListAdapter: ShopListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        findViews()
         initViewModel()
         setupShopListRv()
         setListeners()
-    }
-
-    private fun findViews() {
-        shopListRv = findViewById(R.id.main_rv)
-        addFab = findViewById(R.id.add_fab)
     }
 
     private fun initViewModel() {
@@ -57,10 +54,10 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.EditingFinishedListen
     private fun setupShopListRv() {
         // set adapter
         shopListAdapter = ShopListAdapter()
-        shopListRv.adapter = shopListAdapter
+        binding.mainRv.adapter = shopListAdapter
 
         // set up pool
-        shopListRv.recycledViewPool.also {
+        binding.mainRv.recycledViewPool.also {
             it.setMaxRecycledViews(
                 ShopListAdapter.ITEM_VIEW_TYPE_ENABLED, ShopListAdapter.MAX_POOL_SIZE)
             it.setMaxRecycledViews(
@@ -100,11 +97,11 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.EditingFinishedListen
 
         // Attach ItemTouchHelper to RecyclerView
         val itemTouchHelper = ItemTouchHelper(swipeCallback)
-        itemTouchHelper.attachToRecyclerView(shopListRv)
+        itemTouchHelper.attachToRecyclerView(binding.mainRv)
     }
 
     private fun setListeners() {
-        addFab.setOnClickListener(::onAddBtnClick)
+        binding.addFab.setOnClickListener(::onAddBtnClick)
     }
 
 
