@@ -20,7 +20,9 @@ class ShopItemFragment : Fragment() {
     private var fragmentMode: Int = MODE_UNDEFINED
     private var itemId: Int = ID_UNDEFINED
 
-    private lateinit var binding: FragmentShopItemBinding
+    private var _binding: FragmentShopItemBinding? = null
+    private val binding: FragmentShopItemBinding
+        get() = _binding!!
 
     private lateinit var viewModel: ShopItemViewModel
 
@@ -46,8 +48,13 @@ class ShopItemFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentShopItemBinding.inflate(inflater, container, false)
+        _binding = FragmentShopItemBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
