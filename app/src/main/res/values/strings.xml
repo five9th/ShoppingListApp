@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">ShoppingListApp</string>
+    <string name="add_fab_desc">Add item</string>
+    <string name="save_btn_text">Save</string>
+    <string name="name_hint">Name</string>
+    <string name="count_hint">Count</string>
+    <string name="wrong_name">Недопустимое имя</string>
+    <string name="wrong_value">Недопустимое значение</string>
 </resources>
