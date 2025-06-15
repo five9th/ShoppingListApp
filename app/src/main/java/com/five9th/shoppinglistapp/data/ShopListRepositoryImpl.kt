@@ -14,6 +14,8 @@ class ShopListRepositoryImpl(app: Application) : ShopListRepository {
     private val mapper = ShopListMapper()
 
     override fun addShopItem(item: ShopListItem) {
+        item.id = 0 // id must be 0 for Room to treat it as unset
+
         val dbModel = mapper.mapEntityToDbModel(item)
         dao.insertShopItem(dbModel)
     }
