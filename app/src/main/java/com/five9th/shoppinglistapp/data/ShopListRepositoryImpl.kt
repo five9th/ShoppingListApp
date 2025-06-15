@@ -2,6 +2,7 @@ package com.five9th.shoppinglistapp.data
 
 import android.app.Application
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import com.five9th.shoppinglistapp.domain.entity.ShopListItem
 import com.five9th.shoppinglistapp.domain.usecase.ShopListRepository
 
@@ -35,7 +36,7 @@ class ShopListRepositoryImpl(app: Application) : ShopListRepository {
         dao.deleteShopItem(item.id)
     }
 
-    override fun getShopListLD(): LiveData<List<ShopListItem>> {
-        return TODO("figure out how to use LiveData here")
+    override fun getShopListLD(): LiveData<List<ShopListItem>> = dao.getShopList().map { list ->
+        mapper.mapDbModelListToEntityList(list)
     }
 }
