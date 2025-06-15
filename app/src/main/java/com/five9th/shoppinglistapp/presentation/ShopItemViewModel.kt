@@ -9,6 +9,10 @@ import com.five9th.shoppinglistapp.domain.entity.ShopListItem
 import com.five9th.shoppinglistapp.domain.usecase.AddShopItemUsecase
 import com.five9th.shoppinglistapp.domain.usecase.EditShopItemUsecase
 import com.five9th.shoppinglistapp.domain.usecase.GetShopItemUsecase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = ShopListRepositoryImpl(application) // TODO: it's bad to init repository in here
@@ -16,6 +20,8 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
     private val getShopItemUsecase = GetShopItemUsecase(repository)
     private val addShopItemUsecase = AddShopItemUsecase(repository)
     private val editShopItemUsecase = EditShopItemUsecase(repository)
+
+    private val scope = CoroutineScope(Dispatchers.IO)
 
     private val _shopItemLD = MutableLiveData<ShopListItem>()
     val shopItemLD: LiveData<ShopListItem>
@@ -35,9 +41,11 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
 
 
     fun getShopItem(itemId: Int) {
-        val item = getShopItemUsecase.getShopItem(itemId)
-        item?.also {
-            _shopItemLD.postValue(item)
+        scope.launch {
+            val item = getShopItemUsecase.getShopItem(itemId)
+            item?.also {
+                _shopItemLD.postValue(item)
+            }
         }
     }
 
@@ -49,7 +57,10 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
 
         if (isValid) {
             val shopItem = ShopListItem(name, count, true)
-            addShopItemUsecase.addShopItem(shopItem)
+
+            scope.launch {
+                addShopItemUsecase.addShopItem(shopItem)
+            }
 
             // Notify that ShopItemActivity may me closed
             _closeActivity.value = Unit
@@ -68,7 +79,9 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
             shopItem?.let {
                 val editedItem = it.copy(name = name, count = count)
 
-                editShopItemUsecase.editShopItem(editedItem)
+                scope.launch {
+                    editShopItemUsecase.editShopItem(editedItem)
+                }
 
                 // Notify that ShopItemActivity may me closed
                 _closeActivity.value = Unit
@@ -108,5 +121,10 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
 
     fun resetCountError() {
         _countHasError.postValue(false)
+    }
+
+    override fun onCleared() {
+        scope.cancel()
+        super.onCleared()
     }
 }

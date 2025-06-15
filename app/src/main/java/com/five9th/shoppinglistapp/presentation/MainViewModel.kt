@@ -10,6 +10,10 @@ import com.five9th.shoppinglistapp.domain.usecase.AddShopItemUsecase
 import com.five9th.shoppinglistapp.domain.usecase.EditShopItemUsecase
 import com.five9th.shoppinglistapp.domain.usecase.GetShopListUsecase
 import com.five9th.shoppinglistapp.domain.usecase.RemoveShopItemUsecase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = ShopListRepositoryImpl(application) // TODO: it's bad to init repository in here
@@ -19,20 +23,34 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val addShopItemUsecase = AddShopItemUsecase(repository)
     private val editShopItemUsecase = EditShopItemUsecase(repository)
 
+    private val scope = CoroutineScope(Dispatchers.IO)
+
     fun getShopListLD(): LiveData<List<ShopListItem>> {
         return getShopListUsecase.getShopListLD()
     }
 
     fun removeShopItem(item: ShopListItem) {
-        removeShopItemUsecase.removeShopItem(item.id)
+        scope.launch {
+            removeShopItemUsecase.removeShopItem(item.id)
+        }
     }
 
     fun addShopItem(item: ShopListItem) {
-        addShopItemUsecase.addShopItem(item)
+        scope.launch {
+            addShopItemUsecase.addShopItem(item)
+        }
     }
 
     fun changeEnableState(item: ShopListItem) {
         val newItem = item.copy(isEnabled = !item.isEnabled)
-        editShopItemUsecase.editShopItem(newItem)
+
+        scope.launch {
+            editShopItemUsecase.editShopItem(newItem)
+        }
+    }
+
+    override fun onCleared() {
+        scope.cancel()
+        super.onCleared()
     }
 }
