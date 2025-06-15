@@ -1,16 +1,17 @@
 package com.five9th.shoppinglistapp.presentation
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.five9th.shoppinglistapp.data.ShopListRepositoryImpl
 import com.five9th.shoppinglistapp.domain.entity.ShopListItem
 import com.five9th.shoppinglistapp.domain.usecase.AddShopItemUsecase
 import com.five9th.shoppinglistapp.domain.usecase.EditShopItemUsecase
 import com.five9th.shoppinglistapp.domain.usecase.GetShopItemUsecase
 
-class ShopItemViewModel : ViewModel() {
-    private val repository = ShopListRepositoryImpl // TODO: it's bad to init repository in here
+class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository = ShopListRepositoryImpl(application) // TODO: it's bad to init repository in here
 
     private val getShopItemUsecase = GetShopItemUsecase(repository)
     private val addShopItemUsecase = AddShopItemUsecase(repository)
