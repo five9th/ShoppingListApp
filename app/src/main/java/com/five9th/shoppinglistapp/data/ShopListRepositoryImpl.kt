@@ -13,28 +13,28 @@ class ShopListRepositoryImpl(app: Application) : ShopListRepository {
     private val dao = AppDataBase.getInstance(app).getShopListDao()
     private val mapper = ShopListMapper()
 
-    override fun addShopItem(item: ShopListItem) {
+    override suspend fun addShopItem(item: ShopListItem) {
         item.id = 0 // id must be 0 for Room to treat it as unset
 
         val dbModel = mapper.mapEntityToDbModel(item)
         dao.insertShopItem(dbModel)
     }
 
-    override fun getShopItem(id: Int): ShopListItem? { // TODO: what if id not found
+    override suspend fun getShopItem(id: Int): ShopListItem? { // TODO: what if id not found
         val dbModel = dao.getShopItem(id)
         return mapper.mapDbModelToEntity(dbModel)
     }
 
-    override fun editShopItem(item: ShopListItem) {
+    override suspend fun editShopItem(item: ShopListItem) {
         val dbModel = mapper.mapEntityToDbModel(item)
         dao.insertShopItem(dbModel)
     }
 
-    override fun removeShopItem(itemId: Int) {
+    override suspend fun removeShopItem(itemId: Int) {
         dao.deleteShopItem(itemId)
     }
 
-    override fun removeShopItem(item: ShopListItem) {
+    override suspend fun removeShopItem(item: ShopListItem) {
         dao.deleteShopItem(item.id)
     }
 
