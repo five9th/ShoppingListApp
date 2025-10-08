@@ -1,16 +1,20 @@
 package com.five9th.shoppinglistapp.presentation
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.five9th.shoppinglistapp.data.ShopListRepositoryImpl
 import com.five9th.shoppinglistapp.domain.entity.ShopListItem
 import com.five9th.shoppinglistapp.domain.usecase.AddShopItemUsecase
 import com.five9th.shoppinglistapp.domain.usecase.EditShopItemUsecase
 import com.five9th.shoppinglistapp.domain.usecase.GetShopItemUsecase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class ShopItemViewModel : ViewModel() {
-    private val repository = ShopListRepositoryImpl // TODO: it's bad to init repository in here
+class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository = ShopListRepositoryImpl(application) // TODO: it's bad to init repository in here
 
     private val getShopItemUsecase = GetShopItemUsecase(repository)
     private val addShopItemUsecase = AddShopItemUsecase(repository)
@@ -34,9 +38,11 @@ class ShopItemViewModel : ViewModel() {
 
 
     fun getShopItem(itemId: Int) {
-        val item = getShopItemUsecase.getShopItem(itemId)
-        item?.also {
-            _shopItemLD.postValue(item)
+        viewModelScope.launch(Dispatchers.IO) {
+            val item = getShopItemUsecase.getShopItem(itemId)
+            item?.also {
+                _shopItemLD.postValue(it)
+            }
         }
     }
 
@@ -48,7 +54,10 @@ class ShopItemViewModel : ViewModel() {
 
         if (isValid) {
             val shopItem = ShopListItem(name, count, true)
-            addShopItemUsecase.addShopItem(shopItem)
+
+            viewModelScope.launch(Dispatchers.IO) {
+                addShopItemUsecase.addShopItem(shopItem)
+            }
 
             // Notify that ShopItemActivity may me closed
             _closeActivity.value = Unit
@@ -67,7 +76,9 @@ class ShopItemViewModel : ViewModel() {
             shopItem?.let {
                 val editedItem = it.copy(name = name, count = count)
 
-                editShopItemUsecase.editShopItem(editedItem)
+                viewModelScope.launch(Dispatchers.IO) {
+                    editShopItemUsecase.editShopItem(editedItem)
+                }
 
                 // Notify that ShopItemActivity may me closed
                 _closeActivity.value = Unit

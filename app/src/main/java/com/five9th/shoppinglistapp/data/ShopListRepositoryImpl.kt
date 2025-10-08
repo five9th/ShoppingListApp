@@ -1,65 +1,44 @@
 package com.five9th.shoppinglistapp.data
 
+import android.app.Application
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
 import com.five9th.shoppinglistapp.domain.entity.ShopListItem
 import com.five9th.shoppinglistapp.domain.usecase.ShopListRepository
 
 
-/** Simple repository implementation. Stores data in local variable.
- * Also stores and manages LiveData. */
-object ShopListRepositoryImpl : ShopListRepository {
-    private val shopList =
-        sortedSetOf<ShopListItem>(
-            { i1, i2 -> i1.id.compareTo(i2.id)
-    })
+// TODO: perform DB operations in another thread
+class ShopListRepositoryImpl(app: Application) : ShopListRepository {
 
-    private val _shopListLiveData = MutableLiveData<List<ShopListItem>>()
+    private val dao = AppDataBase.getInstance(app).getShopListDao()
+    private val mapper = ShopListMapper()
 
-    init { // generating some test data
-        for (i in 1..10) {
-            addShopItem(ShopListItem("Item $i", i, true))
-        }
+    override suspend fun addShopItem(item: ShopListItem) {
+        item.id = 0 // id must be 0 for Room to treat it as unset
+
+        val dbModel = mapper.mapEntityToDbModel(item)
+        dao.insertShopItem(dbModel)
     }
 
-    private var lastId = 0
-
-    override fun addShopItem(item: ShopListItem) {
-        if (item.id == ShopListItem.UNREGISTERED_ID) {
-            item.id = ++lastId
-        }
-
-        shopList.add(item)
-        updateShopList() // notify observers via LiveData
+    override suspend fun getShopItem(id: Int): ShopListItem? { // TODO: what if id not found
+        val dbModel = dao.getShopItem(id)
+        return mapper.mapDbModelToEntity(dbModel)
     }
 
-    override fun getShopItem(id: Int): ShopListItem? {
-        return shopList.find { item -> item.id == id }
+    override suspend fun editShopItem(item: ShopListItem) {
+        val dbModel = mapper.mapEntityToDbModel(item)
+        dao.insertShopItem(dbModel)
     }
 
-    override fun editShopItem(item: ShopListItem) {
-//        removeShopItem(item.id)
-        shopList.remove(item) // just removing the item
-        addShopItem(item) // adding item and notifying observers
+    override suspend fun removeShopItem(itemId: Int) {
+        dao.deleteShopItem(itemId)
     }
 
-    override fun removeShopItem(itemId: Int) {
-        shopList.removeIf { it.id == itemId }
-
-        updateShopList() // notify observers via LiveData
+    override suspend fun removeShopItem(item: ShopListItem) {
+        dao.deleteShopItem(item.id)
     }
 
-    override fun removeShopItem(item: ShopListItem) {
-        shopList.remove(item)
-
-        updateShopList() // notify observers via LiveData
-    }
-
-    override fun getShopListLD(): LiveData<List<ShopListItem>> {
-        return _shopListLiveData
-    }
-
-    private fun updateShopList() {
-        _shopListLiveData.value = shopList.toList()
+    override fun getShopListLD(): LiveData<List<ShopListItem>> = dao.getShopList().map { list ->
+        mapper.mapDbModelListToEntityList(list)
     }
 }
